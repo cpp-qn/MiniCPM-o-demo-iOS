@@ -1,0 +1,22 @@
+diff --git a/tools/mtmd/clip.cpp b/tools/mtmd/clip.cpp
+index 0000000..0000000 100644
+--- a/tools/mtmd/clip.cpp
++++ b/tools/mtmd/clip.cpp
+@@ -2778,7 +2778,13 @@
+         {
+-            const int max_slice_nums = 9; // TODO: this is only used by minicpmv, maybe remove it
+-            const float log_ratio = log((float)original_width / original_height);
+-            const float ratio = (float)original_width * original_height / (slice_size * slice_size);
+-            const int multiple = fmin(ceil(ratio), max_slice_nums);
+-
+-            auto best_grid   = get_best_grid(max_slice_nums, multiple, log_ratio);
+-            auto refine_size = get_refine_size(original_size, best_grid, slice_size, patch_size, true);
+-            res.grid_size    = best_grid;
+-            res.refined_size = refine_size;
++            const int max_slice_nums = 1;
++            if (max_slice_nums <= 1) {
++                res.overview_size = get_best_resize(original_size, slice_size, patch_size, true);
++                res.refined_size  = clip_image_size{0, 0};
++                res.grid_size     = clip_image_size{1, 1};
++                return res;
++            }

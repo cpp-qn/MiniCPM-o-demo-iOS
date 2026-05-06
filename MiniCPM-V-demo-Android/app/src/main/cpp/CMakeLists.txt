@@ -46,6 +46,29 @@ if(NOT EXISTS ${LLAMA_SRC}/CMakeLists.txt)
 endif()
 message(STATUS "Using llama.cpp source at: ${LLAMA_SRC}")
 
+set(PATCH_DIR ${CMAKE_CURRENT_LIST_DIR}/patches)
+set(SLICING_PATCH ${PATCH_DIR}/disable-slicing.patch)
+if(EXISTS ${SLICING_PATCH})
+    execute_process(
+        COMMAND git -C ${LLAMA_SRC} apply --reverse --check ${SLICING_PATCH}
+        RESULT_VARIABLE already_applied
+        OUTPUT_QUIET ERROR_QUIET
+    )
+    if(already_applied EQUAL 0)
+        message(STATUS "Patch already applied: disable-slicing.patch")
+    else()
+        execute_process(
+            COMMAND git -C ${LLAMA_SRC} apply ${SLICING_PATCH}
+            RESULT_VARIABLE patch_result
+        )
+        if(patch_result EQUAL 0)
+            message(STATUS "Applied patch: disable-slicing.patch")
+        else()
+            message(FATAL_ERROR "Failed to apply patch: ${SLICING_PATCH}")
+        endif()
+    endif()
+endif()
+
 add_subdirectory(${LLAMA_SRC} ${CMAKE_BINARY_DIR}/build-llama)
 
 if(NOT DEFINED LLAMA_INSTALL_VERSION)
