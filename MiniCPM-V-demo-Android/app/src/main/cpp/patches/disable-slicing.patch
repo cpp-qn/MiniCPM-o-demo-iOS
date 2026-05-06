@@ -1,18 +1,22 @@
+From 019e87b0d44a86b472b9b88167b9600d1d8ae72d Mon Sep 17 00:00:00 2001
+From: GQN <21371475@buaa.edu.cn>
+Date: Wed, 6 May 2026 03:08:44 +0800
+Subject: [PATCH] Disable image slicing: use single main image only
+ (max_slice_nums=1)
+
+---
+ tools/mtmd/clip.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
 diff --git a/tools/mtmd/clip.cpp b/tools/mtmd/clip.cpp
-index 0000000..0000000 100644
+index 179718572..d546aec04 100644
 --- a/tools/mtmd/clip.cpp
 +++ b/tools/mtmd/clip.cpp
-@@ -2778,7 +2778,13 @@
+@@ -2777,7 +2777,14 @@ struct llava_uhd {
+         res.overview_size = best_size;
+ 
          {
 -            const int max_slice_nums = 9; // TODO: this is only used by minicpmv, maybe remove it
--            const float log_ratio = log((float)original_width / original_height);
--            const float ratio = (float)original_width * original_height / (slice_size * slice_size);
--            const int multiple = fmin(ceil(ratio), max_slice_nums);
--
--            auto best_grid   = get_best_grid(max_slice_nums, multiple, log_ratio);
--            auto refine_size = get_refine_size(original_size, best_grid, slice_size, patch_size, true);
--            res.grid_size    = best_grid;
--            res.refined_size = refine_size;
 +            const int max_slice_nums = 1;
 +            if (max_slice_nums <= 1) {
 +                res.overview_size = get_best_resize(original_size, slice_size, patch_size, true);
@@ -20,3 +24,9 @@ index 0000000..0000000 100644
 +                res.grid_size     = clip_image_size{1, 1};
 +                return res;
 +            }
++
+             const float log_ratio = log((float)original_width / original_height);
+             const float ratio = (float)original_width * original_height / (slice_size * slice_size);
+             const int multiple = fmin(ceil(ratio), max_slice_nums);
+-- 
+2.49.0
